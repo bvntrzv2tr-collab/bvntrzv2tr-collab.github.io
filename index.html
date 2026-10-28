@@ -58,30 +58,36 @@
     background: #fff; border: 1px solid #A8C8E8; border-radius: 12px;
   }
   .card.alt { background: #F1F7FD; }
-  .word-row { display: flex; align-items: baseline; gap: 8px; }
+  .word-row { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; }
   .no {
     flex: none; width: 20px; height: 20px; line-height: 20px; text-align: center;
     background: #CFE3F6; border-radius: 50%; font-size: 11px; color: #2B3440;
   }
   .word { font-size: 19px; font-weight: 700; }
-  .hint { margin-left: auto; font-size: 12px; color: #7F93AD; flex: none; }
   .meaning {
     margin: 10px 0 0 28px; font-size: 15px; line-height: 1.6; color: #4F5B6B;
     display: none;
   }
   .card.open .meaning { display: block; }
-  .card.open .hint { visibility: hidden; }
-  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 10px; }
-  .ticks .lbl { font-size: 12px; color: #7F93AD; }
+  /* 中间点中文的区域: 未展开时显示一块可点提示, 展开后换成中文释义 */
+  .mean-hint {
+    margin: 10px 0 0 28px; min-height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    background: #F1F7FD; border: 1px dashed #A8C8E8; border-radius: 8px;
+    font-size: 14px; color: #7F93AD;
+  }
+  .card.open .mean-hint { display: none; }
+  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 12px; }
+  .ticks .lbl { font-size: 12px; color: #7F93AD; margin-right: auto; }
   .box {
-    width: 26px; height: 26px;
+    width: 42px; height: 42px;
     display: inline-flex; align-items: center; justify-content: center;
-    border: 1.5px solid #7F93AD; border-radius: 6px; background: #fff;
-    font-size: 17px; line-height: 1; color: #fff; user-select: none;
+    border: 1.5px solid #7F93AD; border-radius: 8px; background: #fff;
+    font-size: 22px; line-height: 1; color: #fff; user-select: none;
   }
   .box.on { background: #2FA15C; border-color: #2FA15C; }
   .box.no { background: #B3402F; border-color: #B3402F; }
-  .star { margin-left: auto; font-size: 24px; line-height: 1; color: #C9CED6; user-select: none; flex: none; }
+  .star { font-size: 30px; line-height: 1; color: #C9CED6; user-select: none; flex: none; }
   .star.on { color: #E8A100; }
   .foot { margin: 20px 4px 0; font-size: 12px; color: #7F93AD; line-height: 1.7; }
   .empty { margin: 30px 4px; text-align: center; color: #7F93AD; font-size: 14px; line-height: 1.8; }
@@ -207,7 +213,9 @@ function renderList() {
     card.className = "card" + (shown % 2 === 0 ? " alt" : "");
     var row = document.createElement("div");
     row.className = "word-row";
-    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span><span class="hint">点一下看中文</span>';
+    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span>';
+    var hint = document.createElement("div");
+    hint.className = "mean-hint"; hint.textContent = "点一下看中文";
     var mean = document.createElement("div");
     mean.className = "meaning"; mean.textContent = w[1];
     var ticks = document.createElement("div");
@@ -246,7 +254,7 @@ function renderList() {
     });
     ticks.appendChild(star);
     card.addEventListener("click", function () { card.classList.toggle("open"); });
-    card.appendChild(row); card.appendChild(mean); card.appendChild(ticks);
+    card.appendChild(row); card.appendChild(hint); card.appendChild(mean); card.appendChild(ticks);
     list.appendChild(card);
   });
   if (!shown) {
