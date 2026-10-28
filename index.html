@@ -130,7 +130,10 @@ function paintBox(b, v) {
   b.textContent = MARKS[v];
 }
 function stats(day) {
-  var st = load(day), stars = loadStars(day), words = DAYS[day].words, t = 0, d = 0, m = 0, s = 0;
+  var dayObj = null;
+  for (var di = 0; di < DAYS.length; di++) { if (DAYS[di].name === day) { dayObj = DAYS[di]; break; } }
+  if (!dayObj) return { t: 0, total: 0, d: 0, m: 0, s: 0 };
+  var st = load(day), stars = loadStars(day), words = dayObj.words, t = 0, d = 0, m = 0, s = 0;
   words.forEach(function (_, i) {
     var tk = st[i] || [0, 0, 0, 0], marked = 0, yes = 0, weak = false;
     tk.forEach(function (v) { if (v) marked++; if (v === 1) yes++; if (v === 2) weak = true; });
