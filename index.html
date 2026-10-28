@@ -144,6 +144,12 @@ function paintBox(b, v) {
   b.className = "box" + (CLASSES[v] ? " " + CLASSES[v] : "");
   b.textContent = MARKS[v];
 }
+// “不会”只看最后一遍的记号: 最后一格有记号的方框是 ✗ 才算不会,
+// 前面错过、后面改对了就不算 (如 [✗, ✓] 不算不会, [✓, ✗] 算不会)
+function lastMark(tk) {
+  for (var k = 3; k >= 0; k--) { if (tk[k]) return tk[k]; }
+  return 0;
+}
 function stats(day) {
   var dayObj = null;
   for (var di = 0; di < DAYS.length; di++) { if (DAYS[di].name === day) { dayObj = DAYS[di]; break; } }
@@ -151,7 +157,8 @@ function stats(day) {
   var st = load(day), stars = loadStars(day), words = dayObj.words, t = 0, d = 0, m = 0, s = 0;
   words.forEach(function (_, i) {
     var tk = st[i] || [0, 0, 0, 0], marked = 0, yes = 0, weak = false;
-    tk.forEach(function (v) { if (v) marked++; if (v === 1) yes++; if (v === 2) weak = true; });
+    tk.forEach(function (v) { if (v) marked++; if (v === 1) yes++; });
+    if (lastMark(tk) === 2) weak = true;
     t += marked; if (yes === 4) d++; if (weak) m++; if (stars[i]) s++;
   });
   return { t: t, total: words.length * 4, d: d, m: m, s: s };
@@ -192,7 +199,7 @@ function renderList() {
   order.forEach(function (i) {
     var w = day.words[i];
     var tk = st[i] || [0, 0, 0, 0];
-    var weak = tk.indexOf(2) >= 0;
+    var weak = lastMark(tk) === 2;
     if (filterMode === 1 && !weak) return;
     if (filterMode === 2 && !stars[i]) return;
     shown++;
@@ -296,7 +303,7 @@ document.getElementById("btnExport").addEventListener("click", function (ev) {
   var weak = [], starred = [];
   day.words.forEach(function (w, i) {
     var tk = st[i] || [0, 0, 0, 0];
-    if (tk.indexOf(2) >= 0) weak.push(w[0]);
+    if (lastMark(tk) === 2) weak.push(w[0]);
     if (stars[i]) starred.push(w[0]);
   });
   var text = "【" + day.name + " 复习进度】\n" +
