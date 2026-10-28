@@ -69,16 +69,14 @@
     display: none;
   }
   .card.open .meaning { display: block; }
-  /* 中间点中文的区域: 未展开时显示一块可点提示, 展开后换成中文释义 */
-  .mean-hint {
-    margin: 10px 0 0 28px; min-height: 46px;
-    display: flex; align-items: center; justify-content: center;
+  /* 点中文的虚线框放单词右边, 展开后隐去但占位 (卡片不跳动) */
+  .hint {
+    margin-left: auto; padding: 6px 10px; flex: none;
     background: #F1F7FD; border: 1px dashed #A8C8E8; border-radius: 8px;
-    font-size: 14px; color: #7F93AD;
+    font-size: 13px; color: #7F93AD;
   }
-  .card.open .mean-hint { display: none; }
-  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 12px; }
-  .ticks .lbl { font-size: 12px; color: #7F93AD; margin-right: auto; }
+  .card.open .hint { visibility: hidden; }
+  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
   .box {
     width: 42px; height: 42px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -213,16 +211,11 @@ function renderList() {
     card.className = "card" + (shown % 2 === 0 ? " alt" : "");
     var row = document.createElement("div");
     row.className = "word-row";
-    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span>';
-    var hint = document.createElement("div");
-    hint.className = "mean-hint"; hint.textContent = "点一下看中文";
+    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span><span class="hint">点一下看中文</span>';
     var mean = document.createElement("div");
     mean.className = "meaning"; mean.textContent = w[1];
     var ticks = document.createElement("div");
     ticks.className = "ticks";
-    var lbl = document.createElement("span");
-    lbl.className = "lbl"; lbl.textContent = "过了几遍";
-    ticks.appendChild(lbl);
     for (var k = 0; k < 4; k++) {
       (function (k) {
         var b = document.createElement("span");
@@ -254,7 +247,7 @@ function renderList() {
     });
     ticks.appendChild(star);
     card.addEventListener("click", function () { card.classList.toggle("open"); });
-    card.appendChild(row); card.appendChild(hint); card.appendChild(mean); card.appendChild(ticks);
+    card.appendChild(row); card.appendChild(mean); card.appendChild(ticks);
     list.appendChild(card);
   });
   if (!shown) {
