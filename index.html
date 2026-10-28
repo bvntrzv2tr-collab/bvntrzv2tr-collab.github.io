@@ -69,14 +69,8 @@
     display: none;
   }
   .card.open .meaning { display: block; }
-  /* 点中文的虚线框放单词右边, 展开后隐去但占位 (卡片不跳动) */
-  .hint {
-    margin-left: auto; padding: 6px 10px; flex: none;
-    background: #F1F7FD; border: 1px dashed #A8C8E8; border-radius: 8px;
-    font-size: 13px; color: #7F93AD;
-  }
-  .card.open .hint { visibility: hidden; }
-  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
+  /* 方框左对齐放左边, 不再有虚线提示框 */
+  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 12px; justify-content: flex-start; }
   .box {
     width: 42px; height: 42px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -211,7 +205,7 @@ function renderList() {
     card.className = "card" + (shown % 2 === 0 ? " alt" : "");
     var row = document.createElement("div");
     row.className = "word-row";
-    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span><span class="hint">点一下看中文</span>';
+    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span>';
     var mean = document.createElement("div");
     mean.className = "meaning"; mean.textContent = w[1];
     var ticks = document.createElement("div");
