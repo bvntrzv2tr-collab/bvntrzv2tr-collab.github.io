@@ -277,6 +277,7 @@ document.getElementById("btnHide").addEventListener("click", function () {
 });
 document.getElementById("btnClear").addEventListener("click", function () {
   save(DAYS[cur].name, {});
+  saveStars(DAYS[cur].name, {});
   renderList();
 });
 renderPicker();
