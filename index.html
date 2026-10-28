@@ -39,7 +39,15 @@
     background: #CFE3F6; border: 1px solid #A8C8E8; border-radius: 10px;
     font-size: 14px; display: flex; justify-content: space-between;
   }
-  .tools { margin: 12px 4px 0; display: flex; gap: 8px; }
+  .seg { margin: 12px 4px 0; display: flex; }
+  .seg button {
+    flex: 1; padding: 9px 0; font-size: 13px;
+    background: #fff; color: #4F5B6B; border: 1px solid #A8C8E8; border-left-width: 0;
+  }
+  .seg button:first-child { border-left-width: 1px; border-radius: 9px 0 0 9px; }
+  .seg button:last-child { border-radius: 0 9px 9px 0; }
+  .seg button.on { background: #2B3440; color: #fff; border-color: #2B3440; }
+  .tools { margin: 12px 4px 0; display: flex; gap: 8px; flex-wrap: wrap; }
   .tools button {
     flex: 1; padding: 9px 0; font-size: 13px;
     background: #fff; color: #2B3440; border: 1px solid #A8C8E8; border-radius: 9px;
@@ -87,8 +95,14 @@
 <div class="picker-bar"><span class="cur" id="curDay"></span><button id="btnPicker">▽ 切换 Day</button></div>
 <div class="panel" id="panel"></div>
 <div class="progress"><span id="pTicks"></span><span id="pDone"></span></div>
+<div class="seg">
+  <button id="btnF0" class="on">全部</button>
+  <button id="btnF1">只看不会</button>
+  <button id="btnF2">只看星标</button>
+</div>
 <div class="tools">
-  <button id="btnFilter">筛选：全部</button>
+  <button id="btnShuffle">打乱顺序</button>
+  <button id="btnRestore">恢复顺序</button>
   <button id="btnHide">全部收起中文</button>
   <button id="btnClear">清除本 Day 标记</button>
 </div>
@@ -99,7 +113,7 @@ var DAYS = [{"name": "Day 1", "words": [["space", "n.太空;空间"], ["universe
 var MARKS = ["", "✓", "✗"];
 var CLASSES = ["", "on", "no"];
 var cur = DAYS.length - 1, filterMode = 0; // 默认最新 Day; 0 全部, 1 只看不会, 2 只看星标
-var FILTER_NAMES = ["筛选：全部", "筛选：不会", "筛选：星标"];
+var ORDERS = {}; // 每 Day 的显示顺序 (原下标数组), 只在当次打开时有效, 不存 localStorage
 function key(day) { return "cet4-review-v1-" + day; }
 function starsKey(day) { return "cet4-review-v1-" + day + "-stars"; }
 function load(day) {
@@ -173,7 +187,9 @@ function renderList() {
   var day = DAYS[cur], st = load(day.name), stars = loadStars(day.name), list = document.getElementById("list");
   list.innerHTML = "";
   var shown = 0;
-  day.words.forEach(function (w, i) {
+  var order = ORDERS[day.name] || day.words.map(function (_, i) { return i; });
+  order.forEach(function (i) {
+    var w = day.words[i];
     var tk = st[i] || [0, 0, 0, 0];
     var weak = tk.indexOf(2) >= 0;
     if (filterMode === 1 && !weak) return;
@@ -228,15 +244,32 @@ function renderList() {
   if (!shown) {
     var e = document.createElement("div");
     e.className = "empty";
-    e.innerHTML = "这个筛选下没有词，<br>点一下筛选按钮换个条件看看吧。";
+    e.innerHTML = "这个筛选下没有词，<br>换个筛选条件看看吧。";
     list.appendChild(e);
   }
   renderProgress();
 }
-document.getElementById("btnFilter").addEventListener("click", function (ev) {
-  filterMode = (filterMode + 1) % 3;
-  ev.target.textContent = FILTER_NAMES[filterMode];
-  ev.target.classList.toggle("on", filterMode !== 0);
+// 筛选三个状态分开成三个按钮, 点哪个就是哪个, 不用循环按
+["btnF0", "btnF1", "btnF2"].forEach(function (id, f) {
+  document.getElementById(id).addEventListener("click", function () {
+    filterMode = f;
+    ["btnF0", "btnF1", "btnF2"].forEach(function (id2, f2) {
+      document.getElementById(id2).classList.toggle("on", f2 === f);
+    });
+    renderList();
+  });
+});
+document.getElementById("btnShuffle").addEventListener("click", function () {
+  var day = DAYS[cur], arr = day.words.map(function (_, i) { return i; });
+  for (var j = arr.length - 1; j > 0; j--) {
+    var k = Math.floor(Math.random() * (j + 1));
+    var tmp = arr[j]; arr[j] = arr[k]; arr[k] = tmp;
+  }
+  ORDERS[day.name] = arr;
+  renderList();
+});
+document.getElementById("btnRestore").addEventListener("click", function () {
+  delete ORDERS[DAYS[cur].name];
   renderList();
 });
 document.getElementById("btnHide").addEventListener("click", function () {
