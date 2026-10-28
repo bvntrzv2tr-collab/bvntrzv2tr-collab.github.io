@@ -105,6 +105,7 @@
   <button id="btnRestore">恢复顺序</button>
   <button id="btnHide">全部收起中文</button>
   <button id="btnClear">清除本 Day 标记</button>
+  <button id="btnExport">导出进度</button>
 </div>
 <div id="list"></div>
 <p class="foot">标记存在这个网址下本机浏览器里，下次打开还在；Safari 里“分享 → 添加到主屏幕”后就是桌面 App，标记一样在。<br>换设备需要重新标记。</p>
@@ -279,6 +280,40 @@ document.getElementById("btnClear").addEventListener("click", function () {
   save(DAYS[cur].name, {});
   saveStars(DAYS[cur].name, {});
   renderList();
+});
+// 导出进度: 把当前 Day 的统计 + 不会词 + 星标词整理成一段文字, 复制到剪贴板,
+// 本人发给 Muse 后 Muse 才能知道他的对错情况 (标记本身只存在他手机本地, Muse 看不到)
+function fallbackCopy(text) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+}
+document.getElementById("btnExport").addEventListener("click", function (ev) {
+  var day = DAYS[cur], st = load(day.name), stars = loadStars(day.name), s = stats(day.name);
+  var weak = [], starred = [];
+  day.words.forEach(function (w, i) {
+    var tk = st[i] || [0, 0, 0, 0];
+    if (tk.indexOf(2) >= 0) weak.push(w[0]);
+    if (stars[i]) starred.push(w[0]);
+  });
+  var text = "【" + day.name + " 复习进度】\n" +
+    "已标记 " + s.t + " / " + s.total + " · 全对 " + s.d + " 词 · 不会 " + s.m + " 词 · 星标 " + s.s + " 个\n" +
+    "不会：" + (weak.length ? weak.join("、") : "无") + "\n" +
+    "星标：" + (starred.length ? starred.join("、") : "无");
+  var btn = ev.target;
+  function done() {
+    var old = btn.textContent;
+    btn.textContent = "已复制！";
+    setTimeout(function () { btn.textContent = old; }, 2000);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+  } else {
+    fallbackCopy(text); done();
+  }
 });
 renderPicker();
 renderList();
