@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="四级复习卡片">
+<title>四级复习卡片</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0 14px 40px;
+    background: #F1F7FD; color: #2B3440;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif;
+  }
+  header { padding: 22px 4px 6px; }
+  h1 { margin: 0; font-size: 22px; }
+  h1 span { font-size: 13px; color: #7F93AD; font-weight: normal; margin-left: 6px; }
+  .sub { margin: 8px 0 0; font-size: 13px; color: #4F5B6B; line-height: 1.6; }
+  .tabs { margin: 14px 4px 0; display: flex; gap: 8px; }
+  .tab {
+    flex: 1; padding: 10px 0; font-size: 15px; text-align: center;
+    background: #fff; color: #4F5B6B; border: 1px solid #A8C8E8; border-radius: 10px;
+  }
+  .tab.sel { background: #2B3440; color: #fff; border-color: #2B3440; }
+  .progress {
+    margin: 12px 4px 0; padding: 10px 14px;
+    background: #CFE3F6; border: 1px solid #A8C8E8; border-radius: 10px;
+    font-size: 14px; display: flex; justify-content: space-between;
+  }
+  .tools { margin: 12px 4px 0; display: flex; gap: 8px; }
+  .tools button {
+    flex: 1; padding: 9px 0; font-size: 13px;
+    background: #fff; color: #2B3440; border: 1px solid #A8C8E8; border-radius: 9px;
+  }
+  .tools button:active, .tools button.on { background: #CFE3F6; }
+  .card {
+    margin: 12px 0 0; padding: 14px 14px 12px;
+    background: #fff; border: 1px solid #A8C8E8; border-radius: 12px;
+  }
+  .card.alt { background: #F1F7FD; }
+  .word-row { display: flex; align-items: baseline; gap: 8px; }
+  .no {
+    flex: none; width: 20px; height: 20px; line-height: 20px; text-align: center;
+    background: #CFE3F6; border-radius: 50%; font-size: 11px; color: #2B3440;
+  }
+  .word { font-size: 19px; font-weight: 700; }
+  .hint { margin-left: auto; font-size: 12px; color: #7F93AD; flex: none; }
+  .meaning {
+    margin: 10px 0 0 28px; font-size: 15px; line-height: 1.6; color: #4F5B6B;
+    display: none;
+  }
+  .card.open .meaning { display: block; }
+  .card.open .hint { visibility: hidden; }
+  .ticks { margin: 12px 0 0 28px; display: flex; align-items: center; gap: 10px; }
+  .ticks .lbl { font-size: 12px; color: #7F93AD; }
+  .box {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1.5px solid #7F93AD; border-radius: 6px; background: #fff;
+    font-size: 17px; line-height: 1; color: #fff; user-select: none;
+  }
+  .box.on { background: #2B3440; border-color: #2B3440; }
+  .box.no { background: #B3402F; border-color: #B3402F; }
+  .box.unsure { background: #C9A227; border-color: #C9A227; }
+  .foot { margin: 20px 4px 0; font-size: 12px; color: #7F93AD; line-height: 1.7; }
+  .empty { margin: 30px 4px; text-align: center; color: #7F93AD; font-size: 14px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>四级复习卡片<span>点卡片出中文 · 点方框标会 / 不会 / 不确定</span></h1>
+  <p class="sub">点卡片弹出中文，先在心里答、再点开对答案；每过一遍标一次，4 遍全标 ✓ = 全对。</p>
+</header>
+<div class="tabs" id="tabs"></div>
+<div class="progress"><span id="pTicks"></span><span id="pDone"></span></div>
+<div class="tools">
+  <button id="btnWeak">只看待巩固</button>
+  <button id="btnHide">全部收起中文</button>
+  <button id="btnClear">清除本 Day 标记</button>
+</div>
+<div id="list"></div>
+<p class="foot">标记存在这个网址下本机浏览器里，下次打开还在；Safari 里“分享 → 添加到主屏幕”后就是桌面 App，标记一样在。<br>换设备需要重新标记。</p>
+<script>
+var DAYS = [{"name": "Day 10", "words": [["outcome", "n.结果;效果"], ["outbreak", "n.(暴力、疾病等坏事的)爆发，突然发生"], ["breakthrough", "n.重大进展，突破 adj.突破性的"], ["outlet", "n.出口;经销店;发泄方式;表现机会"], ["outlook", "n.观点;前景;景色"], ["output", "n.产量，输出量 v.输出"], ["overcome", "v.克服，战胜"], ["overlook", "v.俯视;忽略"], ["overnight", "adv.忽然;在晚上 adj.忽然的;夜间的"], ["overtake", "v.超过;赶上"], ["overtime", "n.加班"], ["overdue", "adj.(到期)未付的，未做的;延误的"], ["overhear", "v.偶然听到，无意中听到"], ["overwhelm", "v.淹没;压倒"], ["undertake", "v.承担;从事"], ["overall", "adj.全面的，综合的 adv.总计;总体上 n.外套;工装服"], ["altogether", "adv.完全;总共;总之"], ["gather", "v.收集;聚集;增加"], ["headquarters", "n.司令部;总部"], ["quarter", "n.四分之一;季度;十五分钟 v.分为四份"], ["beforehand", "adv.预先，事先"], ["ready", "adj.准备好的;已完成的 adv.已完成"], ["so-called", "adj.所谓的"], ["corrupt", "v.使腐化;破坏 adj.腐败的"], ["bribe", "v.贿赂，向……行贿 n.贿赂"], ["bankrupt", "n.破产者 adj.破产的;完全丧失的"], ["deficit", "n.赤字，逆差，亏损"], ["disrupt", "v.扰乱;分裂，瓦解;中断;彻底改变结构"], ["interrupt", "v.打断;打扰;使暂停"], ["desert", "n.沙漠 v.抛弃"], ["dessert", "n.(饭后)甜点，甜食"], ["insert", "v.插入，嵌进"], ["dump", "n.垃圾场;废物堆 v.扔下;倾倒;丢弃"], ["discard", "v.丢弃，抛弃"], ["junk", "n.无用的东西 v.丢弃，废弃，扔"], ["trash", "n.垃圾，废物 v.损坏"], ["abolish", "v.废除;取消"], ["abuse", "n.滥用;虐待 v.滥用;虐待"], ["clash", "n.冲突;不协调;撞击声 v.冲突;争论"], ["crash", "v.撞车;坠毁 n.撞车事故;失事"], ["wreck", "n.沉船;失事;交通事故 v.破坏，毁坏"], ["smash", "v.打碎，粉碎;猛击"], ["cash", "n.现金;金钱"], ["ashamed", "adj.羞愧的，惭愧的"], ["dash", "v.猛冲 n.猛冲"], ["seal", "v.封上(信封);密封 n.印章"], ["conceal", "v.隐藏;隐瞒;掩盖"], ["reveal", "v.揭露，显示;展示"], ["betray", "v.泄露;背叛;流露情感"], ["uncover", "v.揭开盖子;揭露;发现"], ["load", "n.负载，承载 v.(把大量……)装上"], ["unload", "v.卸货;取下;取出"], ["unfold", "v.打开;呈现;发展，发生"], ["fold", "v.折叠 n.褶皱"]]}, {"name": "Day 11", "words": [["substance", "n.物质;实质;主旨"], ["instance", "n.例子，实例 v.举……为例"], ["quote", "v.引用，引述 n.引语"], ["withstand", "v.承受，抵住"], ["withdraw", "v.(使)撤回;提，取(银行账户中的款)"], ["drawer", "n.抽屉"], ["fetch", "v.(去)拿来;(去)请来"], ["distant", "adj.有距离的;遥远的;不同的"], ["constant", "adj.不断的;重复的;不变的"], ["consistent", "adj.连续的;一贯的，一致的"], ["instant", "n.瞬间 adj.立即的;速溶的"], ["instantaneous", "adj.瞬间的，即时的"], ["immediate", "adj.立刻的，即时的;(地方)紧邻的"], ["prompt", "adj.立即的，及时的 v.促使，导致"], ["constitute", "v.组成，构成;设立"], ["constitution", "n.宪法，章程"], ["substitute", "n.替代品;替代者 v.(以……)代替"], ["replace", "v.代替，取代"], ["institute", "n.学院;学会;协会 v.制定;创立"], ["institution", "n.机构，团体;制度"], ["separate", "v.(使)分开;区别 adj.单独的;不同的"], ["sector", "n.部门;领域;行业"], ["section", "n.部分;节;阶层;部门"], ["segment", "n.部分;(水果的)瓣 v.划分"], ["semester", "n.学期"], ["term", "n.学期;术语;任期"], ["apart", "adv.分开地 adj.分离的"], ["apartment", "n.公寓"], ["department", "n.部门;院系"], ["particle", "n.微粒;极小量"], ["depart", "v.离开，出发;离职"], ["partial", "adj.部分的，局部的;偏袒的"], ["prejudice", "n.偏见;歧视 v.使有偏见"], ["bias", "n.偏心，偏见 v.使存偏见;使倾向一方"], ["neutral", "adj.中立的;中性的 n.中立者;中立国"], ["independent", "adj.独立的;自主的;公正的;私营的"], ["acute", "adj.严重的;敏锐的;急性的"], ["severe", "adj.十分严重的，极为恶劣的;严峻的"], ["grave", "n.墓穴，坟墓 adj.严重的;严肃的"], ["gravity", "n.严重性;严肃;重力"], ["grieve", "v.感到悲痛;使……伤心"], ["relieve", "v.缓解，缓和;减轻"], ["belief", "n.相信，信心;信念;看法"], ["believe", "v.相信;认定"], ["grateful", "adj.感激的，感谢的"], ["grant", "n.拨款 v.授予;准予;承认"], ["grind", "v.磨碎;磨光;用力挤压;摩擦"], ["polish", "n.擦光剂;抛光 v.擦亮;磨光"], ["burst", "v.爆炸;突然发生 n.爆炸;突发"], ["blast", "n.爆炸;一阵(风)，一股(气流) v.炸毁"], ["blow", "v.吹奏;吹出(某物) n.吹;猛击;挫折"], ["explode", "v.爆炸;激增;爆发"], ["explore", "v.勘查;探索;研究"], ["exploit", "v.利用;开采，开发 n.壮举"], ["bomb", "n.炸弹 v.轰炸"], ["bump", "n.撞击(声);肿块;隆起 v.碰，撞"], ["bumper", "n.(汽车头尾的)保险杠"], ["pump", "n.抽水机;泵 v.用泵输送;涌出"], ["lump", "n.块;方糖;肿块;笨重的人"], ["shot", "n.射击;枪手;射门;发射"], ["fire", "n.火 v.解雇;开火;射击"], ["hire", "v.雇用，租用 n.租借，租用"], ["retire", "v.退休;退出;离开(去安静的地方)"], ["employ", "v.雇用;应用，运用，使用"], ["employment", "n.工作，职业;受雇;就业"]]}, {"name": "Day 12", "words": [["luxury", "n.奢侈品;奢华，华贵"], ["treasure", "n.财富;心肝宝贝 v.珍惜"], ["precious", "adj.珍贵的，珍稀的"], ["beloved", "adj.钟爱的;亲爱的;深受喜爱的"], ["cherish", "v.珍爱，钟爱"], ["appreciate", "v.重视;欣赏;感激"], ["valuable", "adj.有价值的，贵重的;很有用的"], ["costly", "adj.昂贵的，贵重的"], ["evaluate", "v.评价，评估"], ["estimate", "v.估计，评估 n.估计，评估"], ["reckon", "v.估算;计算;认为"], ["ultimate", "adj.最后的，最终的"], ["intimate", "adj.亲密的;密切的 n.密友，知己"], ["approximate", "adj.大约的;接近的 v.近似，接近;估算"], ["approach", "v.接近 n.接近;方法"], ["cap", "n.帽子;(笔)帽;最高限额 v.覆盖"], ["expend", "v.支出，花费;消耗"], ["expenditure", "n.支出，花费;消耗"], ["capital", "n.首都;资本;大写字母"], ["captain", "n.船长;机长 v.担任……的队长"], ["capable", "adj.有能力，有才能的;能胜任的"], ["capacity", "n.容量;领悟(或理解、办事)能力"], ["capture", "v.捕获 n.(被)捕获"], ["cabin", "n.小木屋;机舱"], ["cabinet", "n.内阁;储藏柜，陈列柜"], ["cable", "n.缆绳;电缆;电报;网线"], ["cattle", "n.牛;牲口，家畜"], ["wire", "n.金属线;电线 v.用导线接通电源"], ["region", "n.地区;(身体)部位"], ["origin", "n.起源;源头;起因;出身"], ["originate", "v.创建;起源"], ["source", "n.来源，出处，源头 v.从某地获得"], ["resource", "n.资源;财力"], ["derive", "v.追溯……的起源，源于;得到，获得"], ["deprive", "v.剥夺，掠夺;使丧失"], ["seize", "v.抓住;夺取，占领;没收"], ["rob", "v.抢劫，盗取;剥夺"], ["rub", "v.擦，摩擦;揉搓"], ["thrive", "v.兴旺，繁荣;茁壮成长"], ["strive", "v.努力，奋斗"], ["effort", "n.努力;费力的事;试图"], ["accord", "v.(与……)一致 n.协议;符合"], ["record", "n.记录;记载;唱片 v.记录;录音，录像"], ["audio", "adj.声音的;录音的"], ["audience", "n.听众;观众"], ["echo", "n.回声 v.发出回声;重复;附和"], ["regard", "v.认为，把……看作 n.致意，问候"], ["regardless", "adv.不顾一切地，不管;无视"], ["distinguish", "v.区分，辨别"], ["distinct", "adj.有区别的;明确的;显著的"], ["difference", "n.差别，不同(之处);变化(之处)"], ["extinguish", "v.熄灭;消灭"], ["instinct", "n.本能;直觉;天赋"], ["sting", "v.刺;蜇 n.刺;痛苦"], ["pierce", "v.刺穿;刺破;穿孔"], ["thrust", "v.猛推;冲;刺 n.要点;驱动力;刺"]]}];
+var MARKS = ["", "✓", "✗", "？"];
+var CLASSES = ["", "on", "no", "unsure"];
+var cur = 0, weakOnly = false;
+function key(day) { return "cet4-review-v1-" + day; }
+function load(day) {
+  try { return JSON.parse(localStorage.getItem(key(day)) || "{}"); } catch (e) { return {}; }
+}
+// 从小样迁移 Day 10 前 12 词的旧标记(小样 key: cet4-review-demo-day10)
+(function migrate() {
+  try {
+    var old = JSON.parse(localStorage.getItem("cet4-review-demo-day10") || "null");
+    if (old && !localStorage.getItem(key("Day 10"))) localStorage.setItem(key("Day 10"), JSON.stringify(old));
+  } catch (e) {}
+})();
+function save(day, state) { try { localStorage.setItem(key(day), JSON.stringify(state)); } catch (e) {} }
+function paintBox(b, v) {
+  b.className = "box" + (CLASSES[v] ? " " + CLASSES[v] : "");
+  b.textContent = MARKS[v];
+}
+function stats(day) {
+  var st = load(day), words = DAYS[day].words, t = 0, d = 0, m = 0;
+  words.forEach(function (_, i) {
+    var tk = st[i] || [0, 0, 0, 0], marked = 0, yes = 0, weak = false;
+    tk.forEach(function (v) { if (v) marked++; if (v === 1) yes++; if (v === 2 || v === 3) weak = true; });
+    t += marked; if (yes === 4) d++; if (weak) m++;
+  });
+  return { t: t, total: words.length * 4, d: d, m: m };
+}
+function renderProgress() {
+  var s = stats(DAYS[cur].name);
+  document.getElementById("pTicks").textContent = "已标记 " + s.t + " / " + s.total;
+  document.getElementById("pDone").textContent = "全对 " + s.d + " 词 · 待巩固 " + s.m + " 词";
+}
+function renderTabs() {
+  var tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  DAYS.forEach(function (d, i) {
+    var b = document.createElement("div");
+    b.className = "tab" + (i === cur ? " sel" : "");
+    b.textContent = d.name + " · " + d.words.length + "词";
+    b.addEventListener("click", function () { cur = i; renderTabs(); renderList(); });
+    tabs.appendChild(b);
+  });
+}
+function renderList() {
+  var day = DAYS[cur], st = load(day.name), list = document.getElementById("list");
+  list.innerHTML = "";
+  var shown = 0;
+  day.words.forEach(function (w, i) {
+    var tk = st[i] || [0, 0, 0, 0];
+    var weak = tk.indexOf(2) >= 0 || tk.indexOf(3) >= 0;
+    if (weakOnly && !weak) return;
+    shown++;
+    var card = document.createElement("div");
+    card.className = "card" + (shown % 2 === 0 ? " alt" : "");
+    var row = document.createElement("div");
+    row.className = "word-row";
+    row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="word">' + w[0] + '</span><span class="hint">点一下看中文</span>';
+    var mean = document.createElement("div");
+    mean.className = "meaning"; mean.textContent = w[1];
+    var ticks = document.createElement("div");
+    ticks.className = "ticks";
+    var lbl = document.createElement("span");
+    lbl.className = "lbl"; lbl.textContent = "过了几遍";
+    ticks.appendChild(lbl);
+    for (var k = 0; k < 4; k++) {
+      (function (k) {
+        var b = document.createElement("span");
+        paintBox(b, tk[k]);
+        b.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          var s2 = load(day.name), t2 = s2[i] || [0, 0, 0, 0];
+          t2[k] = (t2[k] + 1) % 4;
+          s2[i] = t2; save(day.name, s2);
+          paintBox(b, t2[k]);
+          renderProgress();
+          if (weakOnly) renderList();
+        });
+        ticks.appendChild(b);
+      })(k);
+    }
+    card.addEventListener("click", function () { card.classList.toggle("open"); });
+    card.appendChild(row); card.appendChild(mean); card.appendChild(ticks);
+    list.appendChild(card);
+  });
+  if (!shown) {
+    var e = document.createElement("div");
+    e.className = "empty";
+    e.innerHTML = "这个 Day 还没有待巩固的词，<br>去点“只看待巩固”关掉筛选看看吧。";
+    list.appendChild(e);
+  }
+  renderProgress();
+}
+document.getElementById("btnWeak").addEventListener("click", function (ev) {
+  weakOnly = !weakOnly;
+  ev.target.classList.toggle("on", weakOnly);
+  ev.target.textContent = weakOnly ? "看全部" : "只看待巩固";
+  renderList();
+});
+document.getElementById("btnHide").addEventListener("click", function () {
+  document.querySelectorAll(".card.open").forEach(function (c) { c.classList.remove("open"); });
+});
+document.getElementById("btnClear").addEventListener("click", function () {
+  save(DAYS[cur].name, {});
+  renderList();
+});
+renderTabs();
+renderList();
+</script>
+</body>
+</html>
