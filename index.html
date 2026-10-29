@@ -221,7 +221,10 @@ function renderList() {
           s2[i] = t2; save(day.name, s2);
           paintBox(b, t2[k]);
           renderProgress();
-          if (filterMode === 1) renderList();
+          // 注意: 这里不能马上 renderList() —— 筛选“只看不会”时,
+          // 点一下变 ✓ 就会让词立刻不符合筛选而从眼前消失,
+          // 再点一下变 ✗ 都点不到。卡片留到切筛选 / 切 Day 时再刷新,
+          // 顶上统计照常实时更新。
         });
         ticks.appendChild(b);
       })(k);
@@ -237,7 +240,7 @@ function renderList() {
       star.className = "star" + (ss[i] ? " on" : "");
       star.textContent = ss[i] ? "★" : "☆";
       renderProgress();
-      if (filterMode === 2) renderList();
+      // 同上: 取消星标也不马上重排, 免得卡片在手下消失, 切筛选 / 切 Day 时再刷新。
     });
     ticks.appendChild(star);
     card.addEventListener("click", function () { card.classList.toggle("open"); });
